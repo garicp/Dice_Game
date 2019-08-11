@@ -1,0 +1,261 @@
+<html>
+
+<head>
+    <title>Projects - Dice Game - Object Oriented Programming - 1Btn</title>
+</head>
+
+<body>
+
+    <script>
+        //1. Setup html element & basic variable
+        const game = new DiceGame();
+        const dice = document.createElement("button");
+        const diceReset = document.createElement("button");
+        const round = document.createElement("div");
+        const outputTotal = document.createElement("div");
+        const diceGrap = document.createElement("div");
+        const output = document.createElement("div");
+        const outFinal = document.createElement("div");
+        let outputList = document.createElement("div");
+        let num = 0;
+        let plyScore = 0;
+        let compScore = 0;
+        let defaultRound = 10;
+
+        dice.textContent = "Play";
+        // dice.style.display = "inline-block";// not work for hidden attribute
+        dice.style.fontSize = "18px";
+        dice.style.padding = "10px";
+        dice.style.border = "1px solid black";
+        dice.style.marginRight = "20px";
+        dice.style.cursor = "pointer";
+        dice.hidden = false;
+        diceReset.textContent = "Reset";
+        // diceReset.style.display = "inline-block";// not work for hidden attribute
+        diceReset.style.fontSize = "18px";
+        diceReset.style.padding = "10px";
+        diceReset.style.border = "1px solid black";
+        diceReset.style.marginRight = "20px";
+        diceReset.style.cursor = "pointer";
+        diceReset.hidden = true;
+        round.innerHTML = `Round: ${num}`;
+        round.style.display = "inline-block";
+        round.style.padding = "10px";
+        round.style.border = "1px solid black";
+        round.style.marginRight = "20px";
+        outputTotal.innerHTML = `Player total score: ${plyScore}`
+        outputTotal.style.display = "inline-block";
+        outputTotal.style.padding = "10px";
+        outputTotal.style.border = "1px solid black";
+        outputTotal.style.marginRight = "20px";
+
+        document.body.appendChild(dice);
+        document.body.appendChild(diceReset);
+        document.body.appendChild(round);
+        document.body.appendChild(outputTotal);
+        document.body.appendChild(diceGrap);
+        document.body.appendChild(output);
+        document.body.appendChild(outFinal);
+        document.body.appendChild(outputList);
+
+        let roundPanel = {};
+
+
+        //2. Add event to button
+        dice.addEventListener("click", function () {
+
+            //2.1 Hit play button to start the game
+            if (dice.hidden === false) {
+                diceGrap.innerHTML = "";
+                output.innerHTML = "";
+                outputList.innerHTML = "";
+                diceReset.hidden = true;
+
+                //2.2 Roll the dice and return this round game result
+                let playerRoll = game.roll();
+                let compRoll = game.roll();
+                let playerBuild = game.build(playerRoll);
+                let compBuild = game.build(compRoll);
+                let winner = game.checker(playerRoll, compRoll);
+
+                output.innerHTML +=
+                    `Player roll: <strong>${playerRoll}</strong> vs Computer roll: <strong>${compRoll}</strong>`;
+                output.innerHTML += `<br>This round ${winner}`;
+
+                //2.3 Continue to another round of game
+                dice.textContent = "Continue";
+                num++;
+                round.innerHTML = `Round: ${num}`;
+                outputTotal.innerHTML = `Player total score: ${plyScore}`;
+                defaultRound--;
+
+                //2.4 Update each round result
+                let list = game.relist(num, playerRoll, compRoll);
+
+                let outList = game.outRelist();
+
+                //2.5 Game stop and overall game result score after round 10
+                if (defaultRound === 0) {
+                    dice.hidden = true;
+
+                    //2.6 Reset button show up to reset another new game
+                    diceReset.hidden = false;
+
+                    let finalResult = game.final(plyScore, compScore);
+                    outFinal.innerHTML = finalResult;
+                    outFinal.style.border = "1px solid black";
+                    outFinal.style.padding = "5px";
+                    outFinal.style.width = "400px";
+                }
+            }
+        })
+
+
+        //3. Hit reset button to start new 10 round game
+        diceReset.addEventListener("click", game.reset);
+
+
+        //4. Create game object with various function
+        function DiceGame() {
+
+            //4.1 To roll the dice
+            this.roll = function () {
+                this.result = Math.floor(Math.random() * 6) + 1;
+                return this.result;
+            }
+
+            //4.2 To reset new game
+            this.reset = function () {
+                dice.hidden = false;
+                diceReset.hidden = true;
+                dice.textContent = "Play";
+                diceGrap.innerHTML = "";
+                output.innerHTML = "";
+                outFinal.innerHTML = "";
+                outFinal.style.border = "none";
+                outputList.innerHTML = "";
+                defaultRound = 10;
+                num = 0;
+                plyScore = 0;
+                compScore = 0;
+                round.innerHTML = `Round: ${num}`;
+                outputTotal.innerHTML = `Player total score: ${plyScore}`
+                roundPanel = {};
+                // document.location.reload();
+            }
+
+            //4.3 To built game graphic
+            this.build = function (roll) {
+                let diceFace = document.createElement("div");
+                diceFace.style.display = "inline-block";
+                diceFace.style.margin = "10px";
+                diceFace.innerHTML = `<img src="./images/dice${roll}.png" height="90" width="90">`;
+
+                diceGrap.appendChild(diceFace);
+            }
+
+            //4.4 To check this round winner
+            this.checker = function (roll1, roll2) {
+                if (roll1 > roll2) {
+                    plyScore++;
+                    // outputTotal.innerHTML = `Player total score: ${plyScore}`
+                    return "Player wins";
+                } else if (roll2 > roll1) {
+                    compScore++;
+                    return "Computer wins";
+                } else {
+                    return "no one wins";
+                }
+            }
+
+            //4.5 To construct result object
+            this.relist = function (numb, playerRoll, compRoll) {
+                if (playerRoll > compRoll) {
+                    roundPanel[numb] = {
+                        plyRo: playerRoll,
+                        compRo: compRoll,
+                        plyCol: "green",
+                        plyWord: "white",
+                        compCol: "lightgray",
+                        compWord: "black"
+                    }
+                } else if (playerRoll < compRoll) {
+                    roundPanel[numb] = {
+                        plyRo: playerRoll,
+                        compRo: compRoll,
+                        plyCol: "lightgray",
+                        plyWord: "black",
+                        compCol: "green",
+                        compWord: "white"
+                    }
+                } else {
+                    roundPanel[numb] = {
+                        plyRo: playerRoll,
+                        compRo: compRoll,
+                        plyCol: "blue",
+                        plyWord: "white",
+                        compCol: "blue",
+                        compWord: "white"
+                    }
+                }
+            }
+
+            //4.6 List out each of result
+            this.outRelist = function () {
+                let listTitle = document.createElement("div");
+                listTitle.innerHTML = `Played Records:<br>`;
+                listTitle.style.color = "gray";
+                outputList.appendChild(listTitle);
+
+                for (let x in roundPanel) {
+                    let listOut = document.createElement("div");
+                    listOut.style.fontSize = "16px";
+                    listOut.setAttribute("class", "record");
+
+                    const spanRou = document.createElement("div");
+                    spanRou.style.display = "inline-block";
+                    spanRou.style.marginRight = "5px";
+                    spanRou.style.marginTop = "5px";
+                    spanRou.style.padding = "5px";
+                    spanRou.innerHTML = `Round: ${x}`;
+
+                    const spanPly = document.createElement("div");
+                    spanPly.style.display = "inline-block";
+                    spanPly.style.marginRight = "5px";
+                    spanPly.style.marginTop = "5px";
+                    spanPly.style.padding = "5px";
+                    spanPly.style.backgroundColor = roundPanel[x].plyCol;
+                    spanPly.style.color = roundPanel[x].plyWord;
+                    spanPly.innerHTML = `Player roll: ${roundPanel[x].plyRo}`;
+
+                    const spanComp = document.createElement("div");
+                    spanComp.style.display = "inline-block";
+                    spanComp.style.marginRight = "5px";
+                    spanComp.style.marginTop = "5px";
+                    spanComp.style.padding = "5px";
+                    spanComp.style.backgroundColor = roundPanel[x].compCol;
+                    spanComp.style.color = roundPanel[x].compWord;
+                    spanComp.innerHTML = `Computer roll: ${roundPanel[x].compRo}`;
+
+                    listOut.appendChild(spanRou);
+                    listOut.appendChild(spanPly);
+                    listOut.appendChild(spanComp);
+                    outputList.appendChild(listOut);
+                }
+            }
+
+            //4.7 Declare game winner after 10 round
+            this.final = function (plScore, coScore) {
+                if (plScore === coScore) {
+                    return "A tie game. Press the reset button to play again.<br>Good luck!";
+                } else if (plScore > coScore) {
+                    return "Congratulations! You are the winner. Press the reset button to play again.<br>Good luck!";
+                } else {
+                    return "Sorry! You have lost the game. Press the reset button to play again.<br>Good luck!";
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
